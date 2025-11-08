@@ -32,9 +32,31 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject infoWheel;
     [SerializeField] private GameObject wheelCover;
 
+    [Space]
+    [SerializeField] private GameObject StartGameBtn;
+
+    [Space]
+    [SerializeField] private RectTransform watermarkLeft;
+    [SerializeField] private RectTransform watermarkRight;
+
+    [Space]
+    [SerializeField] private Color btnPressedColor;
+
+
+
 
     float coverOgScale;
 
+
+    [Header("Audio ")]
+    [SerializeField] private AudioSource source;
+
+    [SerializeField] private AudioClip introVO;
+    [SerializeField] private AudioClip wooshSFX;
+    [SerializeField] private AudioClip startBtnClick;
+    [SerializeField] private AudioClip wheelIntro;
+    [SerializeField] private AudioClip wheelSpinSFX;
+    [SerializeField] private AudioClip btnClickSFX;
 
 
 
@@ -47,11 +69,20 @@ public class GameManager : MonoBehaviour
         gameScreen.SetActive(false);
         introLogo.SetActive(true);
         introLogoTarget.SetActive(false);
+        StartGameBtn.transform.localScale = Vector3.zero;
+
+        watermarkLeft.DOAnchorPosX(-600, 0f);
+        watermarkRight.DOAnchorPosX(600, 0f);
+        introLogo.transform.DOScale(Vector3.zero, 0f);
+
 
         coverOgScale = wheelCover.transform.localScale.x;
         wheelCover.transform.localScale = Vector3.zero;
+    }
 
-
+    void Start()
+    {
+        StartCoroutine(IntroSequence());
     }
 
 
@@ -74,23 +105,55 @@ public class GameManager : MonoBehaviour
             optionsBtn[i].onClick.RemoveListener(() => OptionsClicked(index));
         }
     }
+    #region Intro Sequence
 
-#if UNITY_EDITOR
+    private IEnumerator IntroSequence()
+    {
+        //StartCoroutine(WatermarkSequence());
+        watermarkLeft.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
+        PlayOneShot(wooshSFX);
 
-    // void Update()
+        yield return new WaitForSeconds(0.25f);
+
+        watermarkRight.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
+        PlayOneShot(wooshSFX);
+
+        yield return new WaitForSeconds(0.25f);
+
+        introLogo.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
+        PlayOneShot(wooshSFX);
+
+        yield return new WaitForSeconds(.25f);
+
+        PlayOneShot(introVO);
+
+        yield return new WaitForSeconds(introVO.length + 0.5f);
+        StartGameBtn.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
+        PlayOneShot(wooshSFX);
+
+    }
+    // IEnumerator WatermarkSequence()
     // {
-    //     // R to reset the game (for testing purposes)
-    //     if (Input.GetKeyDown(KeyCode.R))
-    //     {
-    //         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
-    //     }
-    // }
+    //     watermarkLeft.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
+    //     PlayOneShot(wooshSFX);
 
-#endif
+    //     yield return new WaitForSeconds(0.25f);
+
+    //     watermarkRight.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
+    //     PlayOneShot(wooshSFX);
+
+    //     yield return new WaitForSeconds(0.25f);
+
+    //     introLogo.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
+    //     PlayOneShot(wooshSFX);
+
+    // }
+    #endregion
 
 
     void StartGame()
     {
+        PlayOneShot(startBtnClick);
         homeScreen.SetActive(false);
 
         // Animate the intro logo to the target position and scale
@@ -119,6 +182,8 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         gameScreen.SetActive(true);
 
+        PlayOneShot(wheelIntro);
+
         wheelObj.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack).OnComplete(() =>
         {
             // Game has begun, you can add additional logic here
@@ -128,6 +193,8 @@ public class GameManager : MonoBehaviour
 
     void MoveWheelToCentre()
     {
+        PlayOneShot(wooshSFX);
+
         wheelObj.transform.SetParent(wheelParent);
         wheelObj.transform.DOLocalMove(Vector3.zero, 0.5f).SetEase(Ease.OutBack);
 
@@ -138,7 +205,10 @@ public class GameManager : MonoBehaviour
     void OptionsClicked(int index)
     {
         Debug.Log("Option " + index + " clicked.");
+        PlayOneShot(btnClickSFX);
         // Handle option button clicks here
+        ChangeOptionsColor(index);
+        optionsBtn[index].transform.DOPunchScale(Vector3.one * .05f, .2f, 5, 1f);
 
         if (!wheelCoverIsOpen)
         {
@@ -156,9 +226,18 @@ public class GameManager : MonoBehaviour
 
         }
     }
+    void ChangeOptionsColor(int index)
+    {
+        for (int i = 0; i < optionsBtn.Length; i++)
+        {
+            Color c = (i == index) ? btnPressedColor : Color.white;
+            optionsBtn[i].GetComponent<Image>().color = c;
+        }
+    }
 
     private void RotateWheel(int index)
     {
+        PlayOneShot(wheelSpinSFX);
         float targetAngle = optionAngles[index];
         float currentZ = infoWheel.transform.localEulerAngles.z;
 
@@ -196,6 +275,18 @@ public class GameManager : MonoBehaviour
     }
 
 
+    public void RestartGame()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+    }
 
+
+    private void PlayOneShot(AudioClip clip)
+    {
+        if (clip != null && source != null)
+        {
+            source.PlayOneShot(clip);
+        }
+    }
 
 }
