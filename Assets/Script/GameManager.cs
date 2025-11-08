@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Color btnPressedColor;
 
 
-
+    Sequence infoWheelSlowSpin;
 
     float coverOgScale;
 
@@ -59,6 +59,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioClip btnClickSFX;
 
 
+    [Header("Particle Effects")]
+    [SerializeField] private ParticleSystem flyingParticlesPrefab;
+    [SerializeField] private ParticleSystem healBigPrefab;
 
 
     private void Awake()
@@ -78,11 +81,14 @@ public class GameManager : MonoBehaviour
 
         coverOgScale = wheelCover.transform.localScale.x;
         wheelCover.transform.localScale = Vector3.zero;
+
+
     }
 
     void Start()
     {
         StartCoroutine(IntroSequence());
+
     }
 
 
@@ -109,21 +115,22 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator IntroSequence()
     {
+        yield return new WaitForSeconds(0.5f);
         //StartCoroutine(WatermarkSequence());
         watermarkLeft.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
         PlayOneShot(wooshSFX);
 
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.5f);
 
         watermarkRight.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
         PlayOneShot(wooshSFX);
 
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.5f);
 
         introLogo.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack);
         PlayOneShot(wooshSFX);
 
-        yield return new WaitForSeconds(.25f);
+        yield return new WaitForSeconds(.5f);
 
         PlayOneShot(introVO);
 
@@ -153,6 +160,7 @@ public class GameManager : MonoBehaviour
 
     void StartGame()
     {
+        StopFlyingParticles();
         PlayOneShot(startBtnClick);
         homeScreen.SetActive(false);
 
@@ -183,10 +191,10 @@ public class GameManager : MonoBehaviour
         gameScreen.SetActive(true);
 
         PlayOneShot(wheelIntro);
-
         wheelObj.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack).OnComplete(() =>
         {
             // Game has begun, you can add additional logic here
+            StartSlowRotation();
             MoveWheelToCentre();
         });
     }
@@ -196,7 +204,13 @@ public class GameManager : MonoBehaviour
         PlayOneShot(wooshSFX);
 
         wheelObj.transform.SetParent(wheelParent);
-        wheelObj.transform.DOLocalMove(Vector3.zero, 0.5f).SetEase(Ease.OutBack);
+        wheelObj.transform.DOLocalMove(Vector3.zero, 0.5f).SetEase(Ease.OutBack).OnComplete(() =>
+        {
+            // Additional logic after wheel is centered can be added here
+            Vector3 wheelWorldPos = wheelObj.transform.position;
+            wheelWorldPos.z = 0f;
+            healBigPrefab.transform.position = wheelWorldPos;
+        });
 
         buttonsHolder.DOAnchorPos(startPos, .5f).SetEase(Ease.OutBack);
     }
@@ -205,6 +219,7 @@ public class GameManager : MonoBehaviour
     void OptionsClicked(int index)
     {
         Debug.Log("Option " + index + " clicked.");
+        healBigPrefab.Play();
         PlayOneShot(btnClickSFX);
         // Handle option button clicks here
         ChangeOptionsColor(index);
@@ -213,9 +228,11 @@ public class GameManager : MonoBehaviour
         if (!wheelCoverIsOpen)
         {
             wheelCoverIsOpen = true;
+            PlayOneShot(wooshSFX);
 
             wheelCover.transform.DOScale(Vector3.one * coverOgScale, .5f).SetEase(Ease.InOutQuart).OnComplete(() =>
             {
+                StopSlowRotation();
                 RotateWheel(index);
             });
         }
@@ -268,6 +285,9 @@ public class GameManager : MonoBehaviour
 
     public void HideCover()
     {
+        StartSlowRotation();
+        PlayOneShot(wooshSFX);
+
         wheelCover.transform.DOScale(Vector3.zero, .5f).SetEase(Ease.InOutQuart).OnComplete(() =>
                {
                    wheelCoverIsOpen = false;
@@ -289,4 +309,25 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void StartSlowRotation()
+    {
+        infoWheelSlowSpin = DOTween.Sequence();
+        infoWheelSlowSpin.Append(infoWheel.transform.DOLocalRotate(new Vector3(0f, 0f, -360f), 60f, RotateMode.FastBeyond360).SetEase(Ease.Linear).SetLoops(-1));
+    }
+    private void StopSlowRotation()
+    {
+        if (infoWheelSlowSpin != null)
+        {
+            infoWheelSlowSpin.Kill();
+            infoWheel.transform.localEulerAngles = Vector3.zero;
+        }
+
+    }
+
+    void StopFlyingParticles()
+    {
+        ParticleSystem ps = flyingParticlesPrefab;
+        var main = ps.emission;
+        main.enabled = false;
+    }
 }
