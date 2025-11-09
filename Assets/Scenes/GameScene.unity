@@ -641,6 +641,26 @@ PrefabInstance:
       propertyPath: playOnAwake
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 19912950, guid: 0e4a7fa9fd28f154b91c98ee6fe8ebea, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19945754, guid: 0e4a7fa9fd28f154b91c98ee6fe8ebea, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19961552, guid: 0e4a7fa9fd28f154b91c98ee6fe8ebea, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19970574, guid: 0e4a7fa9fd28f154b91c98ee6fe8ebea, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 19996166, guid: 0e4a7fa9fd28f154b91c98ee6fe8ebea, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1743,7 +1763,7 @@ MonoBehaviour:
   wooshSFX: {fileID: 8300000, guid: d4916d4992a5e4b6f98f3a7e6357f96e, type: 3}
   startBtnClick: {fileID: 8300000, guid: ae3b49645cddf4846ac0033bff983913, type: 3}
   wheelIntro: {fileID: 8300000, guid: a93200353e6b14ef99de67253c0168ab, type: 3}
-  wheelSpinSFX: {fileID: 8300000, guid: c3010a63e884f42b3828a9422843b544, type: 3}
+  wheelSpinSFX: {fileID: 8300000, guid: a93200353e6b14ef99de67253c0168ab, type: 3}
   btnClickSFX: {fileID: 8300000, guid: 80f14d21f012444aaaf879a65a93e45f, type: 3}
   flyingParticlesPrefab: {fileID: 351057283}
   healBigPrefab: {fileID: 202641933}
@@ -2141,6 +2161,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 19832710, guid: 411410f9528530540bdec97694c0e4f8, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 19851594, guid: 411410f9528530540bdec97694c0e4f8, type: 3}
       propertyPath: simulationSpeed
       value: 0.5
@@ -2163,11 +2187,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 19851594, guid: 411410f9528530540bdec97694c0e4f8, type: 3}
       propertyPath: InitialModule.startSize.scalar
-      value: 0.05
+      value: 0.04
       objectReference: {fileID: 0}
     - target: {fileID: 19851594, guid: 411410f9528530540bdec97694c0e4f8, type: 3}
       propertyPath: InitialModule.startSize.minScalar
-      value: 0.01
+      value: 0.008
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
